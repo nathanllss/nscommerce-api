@@ -1,7 +1,5 @@
 package com.nathanlucas.nscommerce.dtos;
 
-import com.nathanlucas.nscommerce.entities.Product;
-
 public class ProductDTO {
 
     private Long id;
