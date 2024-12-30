@@ -44,6 +44,13 @@ public class ProductController {
         return ResponseEntity.created(uri).body(mapToDTO(product));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
+        Product product = mapToEntity(productDTO);
+        product = productService.update(id, product);
+        return ResponseEntity.ok(mapToDTO(product));
+    }
+
     private ProductDTO mapToDTO(Product product) {
         return modelMapper.map(product, ProductDTO.class);
     }
