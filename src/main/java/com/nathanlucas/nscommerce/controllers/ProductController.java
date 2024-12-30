@@ -8,12 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/products")
@@ -38,7 +33,17 @@ public class ProductController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping
+    public ResponseEntity<ProductDTO> create(@RequestBody ProductDTO productDTO) {
+        Product product = mapToEntity(productDTO);
+        productService.insert(product);
+        return ResponseEntity.ok(mapToDTO(product));
+    }
+
     private ProductDTO mapToDTO(Product product) {
         return modelMapper.map(product, ProductDTO.class);
+    }
+    private Product mapToEntity(ProductDTO productDTO) {
+        return modelMapper.map(productDTO, Product.class);
     }
 }
