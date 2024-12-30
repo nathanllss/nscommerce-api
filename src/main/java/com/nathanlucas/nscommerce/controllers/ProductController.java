@@ -51,6 +51,12 @@ public class ProductController {
         return ResponseEntity.ok(mapToDTO(product));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        productService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
     private ProductDTO mapToDTO(Product product) {
         return modelMapper.map(product, ProductDTO.class);
     }

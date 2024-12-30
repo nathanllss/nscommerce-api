@@ -44,4 +44,9 @@ public class ProductService {
         return productRepository.save(entity);
     }
 
+    @Transactional
+    public void deleteById(Long id) {
+        productRepository.deleteById(id);
+    }
+
 }
