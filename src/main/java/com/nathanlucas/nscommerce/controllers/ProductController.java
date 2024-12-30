@@ -3,6 +3,7 @@ package com.nathanlucas.nscommerce.controllers;
 import com.nathanlucas.nscommerce.Services.ProductService;
 import com.nathanlucas.nscommerce.dtos.ProductDTO;
 import com.nathanlucas.nscommerce.entities.Product;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,7 +38,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> create(@RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> create(@Valid @RequestBody ProductDTO productDTO) {
         Product product = mapToEntity(productDTO);
         product = productService.insert(product);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(product.getId()).toUri();
@@ -45,7 +46,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO productDTO) {
         Product product = mapToEntity(productDTO);
         product = productService.update(id, product);
         return ResponseEntity.ok(mapToDTO(product));
@@ -60,6 +61,7 @@ public class ProductController {
     private ProductDTO mapToDTO(Product product) {
         return modelMapper.map(product, ProductDTO.class);
     }
+
     private Product mapToEntity(ProductDTO productDTO) {
         return modelMapper.map(productDTO, Product.class);
     }
