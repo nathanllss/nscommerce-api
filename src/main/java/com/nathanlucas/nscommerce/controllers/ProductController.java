@@ -9,6 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/products")
@@ -36,8 +39,9 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductDTO> create(@RequestBody ProductDTO productDTO) {
         Product product = mapToEntity(productDTO);
-        productService.insert(product);
-        return ResponseEntity.ok(mapToDTO(product));
+        product = productService.insert(product);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(product.getId()).toUri();
+        return ResponseEntity.created(uri).body(mapToDTO(product));
     }
 
     private ProductDTO mapToDTO(Product product) {
