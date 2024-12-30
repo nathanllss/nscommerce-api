@@ -1,5 +1,6 @@
 package com.nathanlucas.nscommerce.Services;
 
+import com.nathanlucas.nscommerce.Services.exceptions.ResourceNotFoundException;
 import com.nathanlucas.nscommerce.dtos.ProductDTO;
 import com.nathanlucas.nscommerce.entities.Product;
 import com.nathanlucas.nscommerce.repositories.ProductRepository;
@@ -22,7 +23,8 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Product findById(Long id) {
-        return productRepository.findById(id).get();
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado"));
     }
 
     @Transactional(readOnly = true)
