@@ -6,7 +6,6 @@ import com.nathanlucas.nscommerce.dtos.LoginDTO;
 import com.nathanlucas.nscommerce.dtos.LoginResponseDTO;
 import com.nathanlucas.nscommerce.dtos.RegisterDTO;
 import com.nathanlucas.nscommerce.entities.User;
-import com.nathanlucas.nscommerce.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ public class UserController {
     private ModelMapper modelMapper;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginDTO data){
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
@@ -42,10 +41,10 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data){
-        if(!this.service.existsByEmail(data.getEmail())) return ResponseEntity.badRequest().build();
+    public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data) {
+        if (this.service.existsByEmail(data.getEmail())) return ResponseEntity.badRequest().build();
 
-        RegisterDTO registerDTO = setEncodePassword(data.getPassword(), data);
+        RegisterDTO registerDTO = setEncodePassword(data);
         User newUser = modelMapper.map(registerDTO, User.class);
 
         this.service.saveUser(newUser);
@@ -53,7 +52,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    private RegisterDTO setEncodePassword(String password, RegisterDTO data){
+    private RegisterDTO setEncodePassword(RegisterDTO data) {
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.getPassword());
         data.setPassword(encryptedPassword);
         return data;

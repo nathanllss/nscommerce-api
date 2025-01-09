@@ -4,7 +4,6 @@ import java.time.LocalDate;
 
 public class RegisterDTO {
 
-    private Long id;
     private String name;
     private String email;
     private String phone;
@@ -14,8 +13,7 @@ public class RegisterDTO {
     public RegisterDTO() {
     }
 
-    public RegisterDTO(Long id, String name, String email, String phone, LocalDate birthDate, String password) {
-        this.id = id;
+    public RegisterDTO(String name, String email, String phone, LocalDate birthDate, String password) {
         this.name = name;
         this.email = email;
         this.phone = phone;
@@ -23,13 +21,6 @@ public class RegisterDTO {
         this.password = password;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
