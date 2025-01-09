@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+//TODO: Adicionar experiationDate ao token retornado ao usuario
+
 @RestController
 @RequestMapping("user")
 public class UserController {
