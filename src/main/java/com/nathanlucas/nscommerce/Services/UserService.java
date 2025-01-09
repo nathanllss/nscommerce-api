@@ -42,10 +42,15 @@ public class UserService implements UserDetailsService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("User already registered");
         }
-        return userRepository.save(user);
+        return saveClient(user);
     }
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    private User saveClient(User client) {
+        client.addRole(new Role(1L, "ROLE_CLIENT"));
+        return userRepository.save(client);
     }
 }
