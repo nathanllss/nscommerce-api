@@ -5,6 +5,7 @@ import com.nathanlucas.nscommerce.config.security.TokenService;
 import com.nathanlucas.nscommerce.dtos.LoginDTO;
 import com.nathanlucas.nscommerce.dtos.LoginResponseDTO;
 import com.nathanlucas.nscommerce.dtos.RegisterDTO;
+import com.nathanlucas.nscommerce.dtos.UserDTO;
 import com.nathanlucas.nscommerce.entities.User;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -13,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 //TODO: Adicionar experiationDate ao token retornado ao usuario
 
@@ -31,6 +29,11 @@ public class UserController {
     private TokenService tokenService;
     @Autowired
     private ModelMapper modelMapper;
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> findMe() {
+        return ResponseEntity.ok().body(service.getMe());
+    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginDTO data) {
@@ -53,6 +56,8 @@ public class UserController {
 
         return ResponseEntity.ok().build();
     }
+
+
 
     private RegisterDTO setEncodePassword(RegisterDTO data) {
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.getPassword());
