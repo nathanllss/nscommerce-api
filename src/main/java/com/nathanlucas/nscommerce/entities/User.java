@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -86,6 +85,7 @@ public class User implements UserDetails {
     public String getPassword() {
         return password;
     }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
