@@ -1,4 +1,4 @@
-package com.nathanlucas.nscommerce.dtos;
+package com.nathanlucas.nscommerce.dtos.auth;
 
 public class LoginResponseDTO {
 

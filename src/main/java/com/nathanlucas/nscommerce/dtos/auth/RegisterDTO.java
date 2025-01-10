@@ -1,4 +1,4 @@
-package com.nathanlucas.nscommerce.dtos;
+package com.nathanlucas.nscommerce.dtos.auth;
 
 import java.time.LocalDate;
 

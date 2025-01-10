@@ -2,8 +2,8 @@ package com.nathanlucas.nscommerce.controllers.handlers;
 
 import com.nathanlucas.nscommerce.Services.exceptions.DatabaseException;
 import com.nathanlucas.nscommerce.Services.exceptions.ResourceNotFoundException;
-import com.nathanlucas.nscommerce.dtos.CustomError;
-import com.nathanlucas.nscommerce.dtos.ValidationError;
+import com.nathanlucas.nscommerce.dtos.error.CustomError;
+import com.nathanlucas.nscommerce.dtos.error.ValidationError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

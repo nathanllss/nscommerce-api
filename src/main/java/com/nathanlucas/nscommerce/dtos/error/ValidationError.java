@@ -1,4 +1,4 @@
-package com.nathanlucas.nscommerce.dtos;
+package com.nathanlucas.nscommerce.dtos.error;
 
 import java.time.Instant;
 import java.util.ArrayList;

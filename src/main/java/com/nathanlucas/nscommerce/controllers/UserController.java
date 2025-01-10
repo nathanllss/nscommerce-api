@@ -2,9 +2,9 @@ package com.nathanlucas.nscommerce.controllers;
 
 import com.nathanlucas.nscommerce.Services.UserService;
 import com.nathanlucas.nscommerce.config.security.TokenService;
-import com.nathanlucas.nscommerce.dtos.LoginDTO;
-import com.nathanlucas.nscommerce.dtos.LoginResponseDTO;
-import com.nathanlucas.nscommerce.dtos.RegisterDTO;
+import com.nathanlucas.nscommerce.dtos.auth.LoginDTO;
+import com.nathanlucas.nscommerce.dtos.auth.LoginResponseDTO;
+import com.nathanlucas.nscommerce.dtos.auth.RegisterDTO;
 import com.nathanlucas.nscommerce.dtos.UserDTO;
 import com.nathanlucas.nscommerce.entities.User;
 import jakarta.validation.Valid;
