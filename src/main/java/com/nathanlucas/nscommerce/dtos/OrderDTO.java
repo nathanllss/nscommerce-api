@@ -3,6 +3,7 @@ package com.nathanlucas.nscommerce.dtos;
 import com.nathanlucas.nscommerce.entities.Order;
 import com.nathanlucas.nscommerce.entities.OrderItem;
 import com.nathanlucas.nscommerce.entities.enums.OrderStatus;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,8 +14,12 @@ public class OrderDTO {
     private Long id;
     private Instant moment;
     private OrderStatus status;
+
     private ClientDTO client;
+
     private PaymentDTO payment;
+
+    @NotEmpty(message = "Deve ter pelo menos um item")
     private List<OrderItemDTO> items = new ArrayList<>();
 
     public OrderDTO() {
@@ -29,13 +34,14 @@ public class OrderDTO {
     }
 
     public OrderDTO(Order entity) {
-        id = entity.getId();
-        moment = entity.getMoment();
-        status = entity.getStatus();
-        client = new ClientDTO(entity.getClient());
-        payment = (entity.getPayment() == null) ? null : new PaymentDTO(entity.getPayment());
+        this.id = entity.getId();
+        this.moment = entity.getMoment();
+        this.status = entity.getStatus();
+        this.client = new ClientDTO(entity.getClient());
+        this.payment = (entity.getPayment() == null) ? null : new PaymentDTO(entity.getPayment());
         for (OrderItem item : entity.getItems()) {
-            items.add(new OrderItemDTO(item));
+            OrderItemDTO itemDto = new OrderItemDTO(item);
+            items.add(itemDto);
         }
     }
 
@@ -86,8 +92,9 @@ public class OrderDTO {
     public Double getTotal() {
         Double sum = 0.0;
         for (OrderItemDTO item : items) {
-            sum += item.getPrice();
+            sum += item.getSubTotal();
         }
         return sum;
     }
 }
+
