@@ -57,8 +57,6 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-
-
     private RegisterDTO setEncodePassword(RegisterDTO data) {
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.getPassword());
         data.setPassword(encryptedPassword);
