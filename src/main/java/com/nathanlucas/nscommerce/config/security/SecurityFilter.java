@@ -1,5 +1,6 @@
 package com.nathanlucas.nscommerce.config.security;
 
+import com.nathanlucas.nscommerce.Services.AuthService;
 import com.nathanlucas.nscommerce.Services.UserService;
 import com.nathanlucas.nscommerce.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -21,16 +22,14 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Autowired
     TokenService tokenService;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserService userService;
+    private AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var token = this.recoverToken(request);
         if(token != null){
             var login = tokenService.validateToken(token);
-            UserDetails user = userService.loadUserByUsername(login);
+            UserDetails user = authService.loadUserByUsername(login);
 
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
