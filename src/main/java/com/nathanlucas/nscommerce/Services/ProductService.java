@@ -48,10 +48,11 @@ public class ProductService {
     }
 
     @Transactional
-    public ProductDTO update(Long id, ProductDTO updatedProduct) {
+    public ProductDTO update(Long id, ProductDTO updatedDTO) {
         try {
             Product entity = productRepository.getReferenceById(id);
-            modelMapper.map(updatedProduct, entity);
+            entity.getCategories().clear();
+            entity = mapToEntity(updatedDTO);
             entity.setId(id);
             entity = productRepository.save(entity);
             return mapToDTO(entity);
