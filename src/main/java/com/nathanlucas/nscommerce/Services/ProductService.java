@@ -2,10 +2,12 @@ package com.nathanlucas.nscommerce.Services;
 
 import com.nathanlucas.nscommerce.Services.exceptions.DatabaseException;
 import com.nathanlucas.nscommerce.Services.exceptions.ResourceNotFoundException;
+import com.nathanlucas.nscommerce.dtos.CategoryDTO;
 import com.nathanlucas.nscommerce.dtos.ProductDTO;
+import com.nathanlucas.nscommerce.dtos.ProductMinDTO;
+import com.nathanlucas.nscommerce.entities.Category;
 import com.nathanlucas.nscommerce.entities.Product;
 import com.nathanlucas.nscommerce.repositories.ProductRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -26,29 +28,33 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Product findById(Long id) {
-        return productRepository.findById(id)
+    public ProductDTO findById(Long id) {
+        Product entity = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado"));
+        return mapToDTO(entity);
     }
 
     @Transactional(readOnly = true)
-    public Page<Product> findAll(String name, Pageable pageable) {
-        Page<Product> products = productRepository.searchByName(name,pageable);
+    public Page<ProductMinDTO> findAll(String name, Pageable pageable) {
+        Page<ProductMinDTO> products = productRepository.searchByName(name, pageable).map(this::mapToMinDTO);
         return products;
     }
 
     @Transactional
-    public Product insert(Product product) {
-        return productRepository.save(product);
+    public ProductDTO insert(ProductDTO dto) {
+        Product entity = mapToEntity(dto);
+        entity = productRepository.save(entity);
+        return mapToDTO(entity);
     }
 
     @Transactional
-    public Product update(Long id, Product updatedProduct) {
+    public ProductDTO update(Long id, ProductDTO updatedProduct) {
         try {
             Product entity = productRepository.getReferenceById(id);
             modelMapper.map(updatedProduct, entity);
             entity.setId(id);
-            return productRepository.save(entity);
+            entity = productRepository.save(entity);
+            return mapToDTO(entity);
         } catch (Exception e) {
             throw new ResourceNotFoundException("Recurso não encontrado");
         }
@@ -61,10 +67,31 @@ public class ProductService {
         }
         try {
             productRepository.deleteById(id);
-        }
-        catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Falha de integridade referencial");
         }
+    }
+
+    private ProductDTO mapToDTO(Product product) {
+        ProductDTO dto = modelMapper.map(product, ProductDTO.class);
+        for (Category cat : product.getCategories()) {
+            CategoryDTO catDTO = new CategoryDTO(cat);
+            dto.getCategories().add(catDTO);
+        }
+        return dto;
+    }
+    private ProductMinDTO mapToMinDTO(Product product) {
+        return modelMapper.map(product, ProductMinDTO.class);
+    }
+
+    private Product mapToEntity(ProductDTO productDTO) {
+        Product entity = modelMapper.map(productDTO, Product.class);
+        for (CategoryDTO catDTO : productDTO.getCategories()) {
+            Category cat = new Category();
+            cat.setId(catDTO.getId());
+            entity.getCategories().add(cat);
+        }
+        return entity;
     }
 
 }
