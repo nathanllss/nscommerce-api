@@ -2,10 +2,10 @@ package com.nathanlucas.nscommerce.controllers;
 
 import com.nathanlucas.nscommerce.Services.UserService;
 import com.nathanlucas.nscommerce.config.security.TokenService;
-import com.nathanlucas.nscommerce.dtos.auth.LoginDTO;
-import com.nathanlucas.nscommerce.dtos.auth.LoginResponseDTO;
-import com.nathanlucas.nscommerce.dtos.auth.RegisterDTO;
+import com.nathanlucas.nscommerce.dtos.auth.TokenDTO;
 import com.nathanlucas.nscommerce.dtos.UserDTO;
+import com.nathanlucas.nscommerce.dtos.auth.LoginDTO;
+import com.nathanlucas.nscommerce.dtos.auth.RegisterDTO;
 import com.nathanlucas.nscommerce.entities.User;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -38,13 +38,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginDTO data) {
+    public ResponseEntity<TokenDTO> login(@RequestBody @Valid LoginDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((User) auth.getPrincipal());
 
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+        return ResponseEntity.ok(token);
     }
 
     @PostMapping("/register")
