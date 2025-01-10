@@ -2,10 +2,7 @@ package com.nathanlucas.nscommerce.dtos;
 
 import com.nathanlucas.nscommerce.entities.Category;
 import com.nathanlucas.nscommerce.entities.Product;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
@@ -21,6 +18,7 @@ public class ProductDTO {
     @NotBlank(message = "Campo requerido")
     private String description;
     @Positive(message = "Preco deve ser positivo")
+    @NotNull(message = "Campo requerido")
     private Double price;
     private String imgUrl;
     @NotEmpty(message = "Deve ter pelo menos uma categoria")
