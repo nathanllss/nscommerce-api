@@ -1,9 +1,10 @@
 package com.nathanlucas.nscommerce.controllers.handlers;
 
 import com.nathanlucas.nscommerce.Services.exceptions.DatabaseException;
+import com.nathanlucas.nscommerce.Services.exceptions.ForbiddenException;
 import com.nathanlucas.nscommerce.Services.exceptions.ResourceNotFoundException;
-import com.nathanlucas.nscommerce.dtos.CustomError;
-import com.nathanlucas.nscommerce.dtos.ValidationError;
+import com.nathanlucas.nscommerce.dtos.error.CustomError;
+import com.nathanlucas.nscommerce.dtos.error.ValidationError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,12 @@ public class ControllerExceptionHandler {
         for (FieldError f : e.getBindingResult().getFieldErrors()) {
             err.addError(f.getField(),f.getDefaultMessage());
         }
+        return ResponseEntity.status(status).body(err);
+    }
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<CustomError> handleForbiddenException(ForbiddenException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        CustomError err = new CustomError(Instant.now(),status.value(),e.getMessage(),request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 }

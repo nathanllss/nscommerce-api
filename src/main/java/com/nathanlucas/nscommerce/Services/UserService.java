@@ -1,40 +1,51 @@
 package com.nathanlucas.nscommerce.Services;
 
+import com.nathanlucas.nscommerce.dtos.UserDTO;
 import com.nathanlucas.nscommerce.entities.Role;
 import com.nathanlucas.nscommerce.entities.User;
-import com.nathanlucas.nscommerce.projections.UserDetailsProjection;
 import com.nathanlucas.nscommerce.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     @Autowired
     private UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        List<UserDetailsProjection> result = userRepository.searchUserAndRolesByEmail(username);
-        if (result.isEmpty()) {
-            throw new UsernameNotFoundException("Email not found");
+    @Transactional
+    public User saveUser(User user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("User already registered");
         }
-        User user = customLoadUser(username, result);
-        return user;
+        return saveClient(user);
     }
 
-    private User customLoadUser(String username, List<UserDetailsProjection> projections) {
-        User user = new User();
-        user.setEmail(username);
-        user.setPassword(projections.get(0).getPassword());
-        for (UserDetailsProjection projection : projections) {
-            user.addRole(new Role(projection.getRoleId(), projection.getAuthority()));
+    private User saveClient(User client) {
+        client.addRole(new Role(1L, "ROLE_CLIENT"));
+        return userRepository.save(client);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO getMe() {
+        User user = authenticated();
+        return new UserDTO(user);
+    }
+
+    protected User authenticated() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
+            String username = jwtPrincipal.getClaim("username");
+
+            return userRepository.findByEmail(username).get();
+        } catch (Exception e) {
+            throw new UsernameNotFoundException("Email not found");
         }
-        return user;
     }
 }

@@ -1,4 +1,4 @@
-package com.nathanlucas.nscommerce.dtos;
+package com.nathanlucas.nscommerce.dtos.error;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,6 +17,7 @@ public class ValidationError extends CustomError {
     }
 
     public void addError(String fieldName, String message) {
+        erros.removeIf(x -> x.getFieldName().equals(fieldName));
         erros.add(new FieldMessage(fieldName, message));
     }
 }
