@@ -4,6 +4,7 @@ import com.nathanlucas.nscommerce.dtos.UserDTO;
 import com.nathanlucas.nscommerce.entities.Role;
 import com.nathanlucas.nscommerce.entities.User;
 import com.nathanlucas.nscommerce.repositories.UserRepository;
+import com.nathanlucas.nscommerce.util.CustomUserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CustomUserUtil customUserUtil;
 
     @Transactional
     public User saveUser(User user) {
@@ -39,9 +42,7 @@ public class UserService {
 
     protected User authenticated() {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
-            String username = jwtPrincipal.getClaim("username");
+            String username = customUserUtil.getLoggedUsername();
 
             return userRepository.findByEmail(username).get();
         } catch (Exception e) {
