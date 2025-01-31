@@ -1,20 +1,31 @@
 package com.nathanlucas.nscommerce.services;
 
 import com.nathanlucas.nscommerce.dtos.OrderDTO;
+import com.nathanlucas.nscommerce.dtos.OrderItemDTO;
+import com.nathanlucas.nscommerce.dtos.ProductDTO;
 import com.nathanlucas.nscommerce.entities.Order;
+import com.nathanlucas.nscommerce.entities.OrderItem;
+import com.nathanlucas.nscommerce.entities.Product;
 import com.nathanlucas.nscommerce.entities.User;
+import com.nathanlucas.nscommerce.repositories.OrderItemRepository;
 import com.nathanlucas.nscommerce.repositories.OrderRepository;
+import com.nathanlucas.nscommerce.repositories.ProductRepository;
 import com.nathanlucas.nscommerce.services.exceptions.ForbiddenException;
 import com.nathanlucas.nscommerce.services.exceptions.ResourceNotFoundException;
 import com.nathanlucas.nscommerce.utils.OrderFactory;
+import com.nathanlucas.nscommerce.utils.ProductFactory;
 import com.nathanlucas.nscommerce.utils.UserFactory;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import javax.swing.text.html.parser.Entity;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,18 +44,28 @@ public class OrderServiceTests {
     private OrderRepository repository;
     @Mock
     private AuthService authService;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private OrderItemRepository orderItemRepository;
+    @Mock
+    private UserService userService;
 
-    private Long existingId, nonExistingId;
+    private Long existingId, nonExistingId, existingProductId, nonExistingProductId;
     private Order order;
     private OrderDTO orderDTO;
     private User admin, client;
+    private Product product;
 
     @BeforeEach
     void setUp() {
         existingId = 1L;
+        existingProductId = 1L;
         nonExistingId = 200L;
+        nonExistingProductId = 200L;
         admin = UserFactory.createAdmin();
         client = UserFactory.createClient();
+        product = ProductFactory.createProduct();
         order = OrderFactory.createOrder(client);
         orderDTO = new OrderDTO(order);
     }
@@ -87,4 +108,42 @@ public class OrderServiceTests {
         assertThrows(ResourceNotFoundException.class, () -> service.findById(nonExistingId));
     }
 
+    @Test
+    public void insertShouldReturnOrderDTOWhenUserLogged() {
+        when(userService.authenticated()).thenReturn(admin);
+
+        when(productRepository.getReferenceById(existingProductId)).thenReturn(product);
+        when(repository.save(any())).thenReturn(order);
+        when(orderItemRepository.saveAll(any())).thenReturn(new ArrayList<>(order.getItems()));
+
+        OrderDTO result = service.insert(orderDTO);
+
+        assertNotNull(result);
+    }
+
+    @Test
+    public void insertShouldThrowUsernameNotFoundExceptionWhenUserNotLogged() {
+        doThrow(UsernameNotFoundException.class).when(userService).authenticated();
+
+        order.setClient(new User());
+        orderDTO = new OrderDTO(order);
+
+        assertThrows(UsernameNotFoundException.class, () -> service.insert(orderDTO));
+    }
+
+    @Test
+    public void insertShouldThrowEntityNotFoundExceptionWhenProductDoesNotExist() {
+        when(userService.authenticated()).thenReturn(client);
+
+        product.setId(nonExistingProductId);
+        OrderItem orderItem = new OrderItem(order, product, 2, 10.0);
+        order.getItems().add(orderItem);
+
+        orderDTO = new OrderDTO(order);
+
+        assertThrows(ResourceNotFoundException.class, () -> {
+            OrderDTO result = service.insert(orderDTO);
+        });
+
+    }
 }
