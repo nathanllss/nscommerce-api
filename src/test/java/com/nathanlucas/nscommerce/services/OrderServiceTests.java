@@ -134,14 +134,15 @@ public class OrderServiceTests {
     @Test
     public void insertShouldThrowEntityNotFoundExceptionWhenProductDoesNotExist() {
         when(userService.authenticated()).thenReturn(client);
+        when(productRepository.getReferenceById(any())).thenThrow(EntityNotFoundException.class);
+
 
         product.setId(nonExistingProductId);
         OrderItem orderItem = new OrderItem(order, product, 2, 10.0);
-        order.getItems().add(orderItem);
+        OrderItemDTO orderItemDTO = new OrderItemDTO(orderItem);
+        orderDTO.getItems().add(orderItemDTO);
 
-        orderDTO = new OrderDTO(order);
-
-        assertThrows(ResourceNotFoundException.class, () -> {
+        assertThrows(EntityNotFoundException.class, () -> {
             OrderDTO result = service.insert(orderDTO);
         });
 

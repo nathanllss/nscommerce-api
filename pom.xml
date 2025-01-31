@@ -104,8 +104,9 @@
                         <exclude>com/nathanlucas/nscommerce/config/**</exclude>
                         <exclude>com/nathanlucas/nscommerce/entities/**</exclude>
                         <exclude>com/nathanlucas/nscommerce/dtos/**</exclude>
-                        <exclude>com/nathanlucas/nscommerce/controllers/handlers/**</exclude>
+                        <exclude>com/nathanlucas/nscommerce/controllers/**</exclude>
                         <exclude>com/nathanlucas/nscommerce/services/exceptions/**</exclude>
+                        <exclude>com/nathanlucas/nscommerce/util/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

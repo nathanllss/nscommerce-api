@@ -50,14 +50,10 @@ public class OrderService {
         User user = userService.authenticated();
         order.setClient(user);
 
-        try {
-            for (OrderItemDTO itemDto : dto.getItems()) {
-                Product product = productRepository.getReferenceById(itemDto.getProductId());
-                OrderItem item = new OrderItem(order, product, itemDto.getQuantity(), product.getPrice());
-                order.getItems().add(item);
-            }
-        } catch (Exception e) {
-            throw new ResourceNotFoundException();
+        for (OrderItemDTO itemDto : dto.getItems()) {
+            Product product = productRepository.getReferenceById(itemDto.getProductId());
+            OrderItem item = new OrderItem(order, product, itemDto.getQuantity(), product.getPrice());
+            order.getItems().add(item);
         }
 
         orderRepository.save(order);
