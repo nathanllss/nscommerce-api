@@ -15,6 +15,7 @@ public class ProductFactory {
                 4999.99, "url do produto"
         );
         CategoryDTO cat = CategoryFactory.createDTO();
+        productDTO.getCategories().add(cat);
         return productDTO;
     }
     public static ProductDTO createDTO(String name) {
