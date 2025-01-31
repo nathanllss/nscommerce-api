@@ -4,6 +4,7 @@ import com.nathanlucas.nscommerce.dtos.ProductDTO;
 import com.nathanlucas.nscommerce.dtos.ProductMinDTO;
 import com.nathanlucas.nscommerce.entities.Product;
 import com.nathanlucas.nscommerce.repositories.ProductRepository;
+import com.nathanlucas.nscommerce.services.exceptions.DatabaseException;
 import com.nathanlucas.nscommerce.services.exceptions.ResourceNotFoundException;
 import com.nathanlucas.nscommerce.utils.ProductFactory;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,11 +25,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 public class ProductServiceTests {
@@ -61,10 +62,21 @@ public class ProductServiceTests {
 
         when(repository.findById(existingId)).thenReturn(Optional.of(product));
         when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+
         when(repository.searchByName(anyString(), any(Pageable.class))).thenReturn(page);
+
         when(repository.save(any(Product.class))).thenReturn(product);
+
         when(repository.getReferenceById(existingId)).thenReturn(product);
         when(repository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
+
+        when(repository.existsById(existingId)).thenReturn(true);
+        when(repository.existsById(nonExistingId)).thenReturn(false);
+        when(repository.existsById(dependentId)).thenReturn(true);
+
+        doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependentId);
+
+        doNothing().when(repository).deleteById(existingId);
     }
 
     @Test
@@ -117,6 +129,27 @@ public class ProductServiceTests {
     public void updateShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
         assertThrows(ResourceNotFoundException.class, () -> {
             service.update(nonExistingId, productDTO);
+        });
+    }
+
+    @Test
+    public void deleteShouldDoNothingWhenIdExists() {
+        assertDoesNotThrow(() -> {
+            service.deleteById(existingId);
+        });
+    }
+
+    @Test
+    public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+        assertThrows(ResourceNotFoundException.class, () -> {
+            service.deleteById(nonExistingId);
+        });
+    }
+
+    @Test
+    public void deleteShouldThrowDatabaseExceptionWhenIdIsDependent() {
+        assertThrows(DatabaseException.class, () -> {
+            service.deleteById(dependentId);
         });
     }
 
