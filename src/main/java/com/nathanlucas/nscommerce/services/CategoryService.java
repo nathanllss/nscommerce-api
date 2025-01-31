@@ -23,7 +23,8 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public List<CategoryDTO> findAll() {
-        return productRepository.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
+        return productRepository.findAll()
+                .stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     private CategoryDTO mapToDTO(Category category) {
