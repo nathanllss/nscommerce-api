@@ -1,6 +1,6 @@
-package com.nathanlucas.nscommerce.Services;
+package com.nathanlucas.nscommerce.services;
 
-import com.nathanlucas.nscommerce.Services.exceptions.ResourceNotFoundException;
+import com.nathanlucas.nscommerce.services.exceptions.ResourceNotFoundException;
 import com.nathanlucas.nscommerce.dtos.OrderDTO;
 import com.nathanlucas.nscommerce.dtos.OrderItemDTO;
 import com.nathanlucas.nscommerce.entities.Order;

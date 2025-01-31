@@ -1,6 +1,6 @@
 package com.nathanlucas.nscommerce.controllers;
 
-import com.nathanlucas.nscommerce.Services.CategoryService;
+import com.nathanlucas.nscommerce.services.CategoryService;
 import com.nathanlucas.nscommerce.dtos.CategoryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

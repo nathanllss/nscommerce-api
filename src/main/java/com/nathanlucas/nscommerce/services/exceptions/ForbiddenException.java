@@ -1,4 +1,4 @@
-package com.nathanlucas.nscommerce.Services.exceptions;
+package com.nathanlucas.nscommerce.services.exceptions;
 
 public class ForbiddenException extends RuntimeException {
 

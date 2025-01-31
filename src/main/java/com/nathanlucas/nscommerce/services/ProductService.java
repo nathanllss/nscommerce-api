@@ -1,7 +1,7 @@
-package com.nathanlucas.nscommerce.Services;
+package com.nathanlucas.nscommerce.services;
 
-import com.nathanlucas.nscommerce.Services.exceptions.DatabaseException;
-import com.nathanlucas.nscommerce.Services.exceptions.ResourceNotFoundException;
+import com.nathanlucas.nscommerce.services.exceptions.DatabaseException;
+import com.nathanlucas.nscommerce.services.exceptions.ResourceNotFoundException;
 import com.nathanlucas.nscommerce.dtos.CategoryDTO;
 import com.nathanlucas.nscommerce.dtos.ProductDTO;
 import com.nathanlucas.nscommerce.dtos.ProductMinDTO;

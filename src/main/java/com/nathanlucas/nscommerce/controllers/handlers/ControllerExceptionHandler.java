@@ -1,8 +1,8 @@
 package com.nathanlucas.nscommerce.controllers.handlers;
 
-import com.nathanlucas.nscommerce.Services.exceptions.DatabaseException;
-import com.nathanlucas.nscommerce.Services.exceptions.ForbiddenException;
-import com.nathanlucas.nscommerce.Services.exceptions.ResourceNotFoundException;
+import com.nathanlucas.nscommerce.services.exceptions.DatabaseException;
+import com.nathanlucas.nscommerce.services.exceptions.ForbiddenException;
+import com.nathanlucas.nscommerce.services.exceptions.ResourceNotFoundException;
 import com.nathanlucas.nscommerce.dtos.error.CustomError;
 import com.nathanlucas.nscommerce.dtos.error.ValidationError;
 import jakarta.servlet.http.HttpServletRequest;

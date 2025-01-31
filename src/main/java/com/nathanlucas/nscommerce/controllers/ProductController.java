@@ -1,6 +1,6 @@
 package com.nathanlucas.nscommerce.controllers;
 
-import com.nathanlucas.nscommerce.Services.ProductService;
+import com.nathanlucas.nscommerce.services.ProductService;
 import com.nathanlucas.nscommerce.dtos.ProductDTO;
 import com.nathanlucas.nscommerce.dtos.ProductMinDTO;
 import jakarta.validation.Valid;

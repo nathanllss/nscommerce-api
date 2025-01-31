@@ -1,6 +1,6 @@
 package com.nathanlucas.nscommerce.controllers;
 
-import com.nathanlucas.nscommerce.Services.OrderService;
+import com.nathanlucas.nscommerce.services.OrderService;
 import com.nathanlucas.nscommerce.dtos.OrderDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

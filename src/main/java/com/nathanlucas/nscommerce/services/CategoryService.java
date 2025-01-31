@@ -1,4 +1,4 @@
-package com.nathanlucas.nscommerce.Services;
+package com.nathanlucas.nscommerce.services;
 
 import com.nathanlucas.nscommerce.dtos.CategoryDTO;
 import com.nathanlucas.nscommerce.entities.Category;

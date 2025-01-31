@@ -1,4 +1,4 @@
-package com.nathanlucas.nscommerce.Services;
+package com.nathanlucas.nscommerce.services;
 
 import com.nathanlucas.nscommerce.dtos.UserDTO;
 import com.nathanlucas.nscommerce.entities.Role;

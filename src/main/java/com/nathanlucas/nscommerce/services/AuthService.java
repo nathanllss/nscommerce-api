@@ -1,6 +1,6 @@
-package com.nathanlucas.nscommerce.Services;
+package com.nathanlucas.nscommerce.services;
 
-import com.nathanlucas.nscommerce.Services.exceptions.ForbiddenException;
+import com.nathanlucas.nscommerce.services.exceptions.ForbiddenException;
 import com.nathanlucas.nscommerce.entities.Role;
 import com.nathanlucas.nscommerce.entities.User;
 import com.nathanlucas.nscommerce.projections.UserDetailsProjection;
