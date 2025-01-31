@@ -2,6 +2,7 @@ package com.nathanlucas.nscommerce.utils;
 
 import com.nathanlucas.nscommerce.dtos.CategoryDTO;
 import com.nathanlucas.nscommerce.dtos.ProductDTO;
+import com.nathanlucas.nscommerce.dtos.ProductMinDTO;
 import com.nathanlucas.nscommerce.entities.Category;
 import com.nathanlucas.nscommerce.entities.Product;
 
@@ -36,5 +37,11 @@ public class ProductFactory {
         Product product = createProduct();
         product.setName(name);
         return product;
+    }
+
+    public static ProductMinDTO createMinDTO() {
+        return new ProductMinDTO(1L, "Console PlayStation 5",
+                4999.99, "url do produto"
+        );
     }
 }
