@@ -13,12 +13,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,6 +33,7 @@ public class ProductControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
     private String productName;
+    private Long existingProductId, nonExistingProductId, dependentProductId;
     private String clientUsername, clientPassword, adminUsername, adminPassword;
     private String adminToken, clientToken, invalidToken;
     private ProductDTO productDTO;
@@ -42,6 +42,9 @@ public class ProductControllerIT {
     @BeforeEach
     void setUp() throws Exception {
         productName = "Macbook";
+        existingProductId = 2L;
+        nonExistingProductId = 1000L;
+        dependentProductId = 3L;
 
         clientUsername = "maria@gmail.com";
         clientPassword = "123456";
@@ -98,12 +101,12 @@ public class ProductControllerIT {
         String jsonBody = objectMapper.writeValueAsString(productDTO);
 
 
-       mockMvc.perform(post("/products")
+        mockMvc.perform(post("/products")
                         .header("Authorization", "Bearer " + adminToken)
                         .content(jsonBody)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                        .andDo(MockMvcResultHandlers.print())
+                .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.id").value(26L))
@@ -212,6 +215,51 @@ public class ProductControllerIT {
                         .header("Authorization", "Bearer " + invalidToken)
                         .content(jsonBody)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void deleteShouldReturnNoContentWhenAdminLoggedAndIdExists() throws Exception {
+
+        mockMvc.perform(delete("/products/{id}", existingProductId)
+                        .header("Authorization", "Bearer " + adminToken)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void deleteShouldReturnNotFoundWhenAdminLoggedAndIdDoesNotExists() throws Exception {
+
+        mockMvc.perform(delete("/products/{id}", nonExistingProductId)
+                        .header("Authorization", "Bearer " + adminToken)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void deleteShouldReturnBadRequestWhenAdminLoggedAndIdIsDependent() throws Exception {
+
+        mockMvc.perform(delete("/products/{id}", dependentProductId)
+                        .header("Authorization", "Bearer " + adminToken)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void deleteShouldReturnForbiddenWhenClientLogged() throws Exception {
+
+        mockMvc.perform(delete("/products/{id}", existingProductId)
+                        .header("Authorization", "Bearer " + clientToken)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void deleteShouldReturnUnauthorizedWhenNoUserLogged() throws Exception {
+
+        mockMvc.perform(delete("/products/{id}", existingProductId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
