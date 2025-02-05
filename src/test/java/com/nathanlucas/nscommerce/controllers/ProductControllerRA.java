@@ -5,6 +5,8 @@ import io.restassured.http.ContentType;
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +18,7 @@ import static org.hamcrest.Matchers.*;
 
 public class ProductControllerRA {
 
-    private Long existingId, nonExistingId;
+    private Long existingId, nonExistingId, dependentId;
     private String clientUsername, clientPassword, adminUsername, adminPassword, adminToken, clientToken, invalidToken;
     private String productName;
     private Map<String, Object> postProductInstance;
@@ -25,6 +27,7 @@ public class ProductControllerRA {
     public void setUp() {
         baseURI = "http://localhost:8081";
         existingId = 2L;
+        dependentId = 1L;
         nonExistingId = 1000L;
         productName = "Macbook";
 
@@ -112,5 +115,202 @@ public class ProductControllerRA {
                 .body("imgUrl", equalTo("https://raw.githubusercontent.com/devsuperior/dscatalog-resources/master/backend/img/1-big.jpg"))
                 .body("categories.id", hasItems(2,3));
 
+    }
+
+    @Test
+    public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidName() {
+        postProductInstance.put("name", "ab");
+        JSONObject newProduct = new JSONObject(postProductInstance);
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+        .then()
+                .statusCode(422)
+                .body("errors.message[0]", equalTo("Nome precisa ter entre 3 e 80 caracteres"));
+    }
+
+    @Test
+    public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidDescription() {
+        postProductInstance.put("description", "ab");
+        JSONObject newProduct = new JSONObject(postProductInstance);
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+        .then()
+                .statusCode(422)
+                .body("errors.message[0]", equalTo("Descricao precisa ter no minimo 10 caracteres"));
+    }
+
+    @Test
+    public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndPriceIsZero() {
+        postProductInstance.put("price", 0.0);
+        JSONObject newProduct = new JSONObject(postProductInstance);
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+        .then()
+                .statusCode(422)
+                .body("errors.message[0]", equalTo("Preco deve ser positivo"));
+    }
+    @Test
+    public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndPriceLowerThanZero() {
+        postProductInstance.put("price", -50.0);
+        JSONObject newProduct = new JSONObject(postProductInstance);
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+        .then()
+                .statusCode(422)
+                .body("errors.message[0]", equalTo("Preco deve ser positivo"));
+    }
+
+    @Test
+    public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidCategories() {
+        postProductInstance.put("categories", null);
+        JSONObject newProduct = new JSONObject(postProductInstance);
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + adminToken)
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+        .then()
+                .statusCode(422)
+                .body("errors.message[0]", equalTo("Deve ter pelo menos uma categoria"));
+    }
+
+    @Test
+    public void insertShouldReturnForbiddenWhenClientLogged() {
+        JSONObject newProduct = new JSONObject(postProductInstance);
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + clientToken)
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+        .then()
+                .statusCode(403);
+    }
+
+    @Test
+    public void insertShouldReturnUnauthorizedWhenInvalidToken() {
+        JSONObject newProduct = new JSONObject(postProductInstance);
+
+        given()
+                .header("Content-type", "application/json")
+                .header("Authorization", "Bearer " + invalidToken)
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+        .then()
+                .statusCode(401);
+    }
+
+    @Test
+    public void insertShouldReturnUnauthorizedWhenNoToken() {
+        JSONObject newProduct = new JSONObject(postProductInstance);
+
+        given()
+                .header("Content-type", "application/json")
+                .body(newProduct)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+        .when()
+                .post("/products")
+        .then()
+                .statusCode(401);
+    }
+
+    @Test
+    public void deleteShouldReturnNoContentWhenAdminLoggedAndIdExists() {
+        given()
+                .header("Authorization", "Bearer " + adminToken)
+        .when()
+                .delete("/products/{id}", existingId)
+        .then()
+                .statusCode(204);
+    }
+
+    @Test
+    public void deleteShouldReturnNotFoundWhenAdminLoggedAndIdDoesNotExists() {
+        given()
+                .header("Authorization", "Bearer " + adminToken)
+        .when()
+                .delete("/products/{id}", nonExistingId)
+        .then()
+                .statusCode(404)
+                .body("error", equalTo("Recurso não encontrado"));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void deleteShouldReturnBadRequestWhenAdminLoggedAndIdIsDependent() {
+        given()
+                .header("Authorization", "Bearer " + adminToken)
+        .when()
+                .delete("/products/{id}", dependentId)
+        .then()
+                .statusCode(400);
+    }
+
+    @Test
+    public void deleteShouldReturnForbiddenWhenClientLogged() {
+        given()
+                .header("Authorization", "Bearer " + clientToken)
+        .when()
+                .delete("/products/{id}", existingId)
+        .then()
+                .statusCode(403);
+    }
+
+    @Test
+    public void deleteShouldReturnUnauthorizedWhenInvalidToken() {
+        given()
+                .header("Authorization", "Bearer " + invalidToken)
+        .when()
+                .delete("/products/{id}", existingId)
+        .then()
+                .statusCode(401);
+    }
+
+    @Test
+    public void deleteShouldReturnUnauthorizedWhenNoToken() {
+        given()
+        .when()
+                .delete("/products/{id}", existingId)
+        .then()
+                .statusCode(401);
     }
 }

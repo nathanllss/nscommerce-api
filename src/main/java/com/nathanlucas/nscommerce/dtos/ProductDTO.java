@@ -11,7 +11,7 @@ import java.util.List;
 public class ProductDTO {
 
     private Long id;
-    @Size(min = 3, max = 80, message = "Nome precisa estar entre 3 e 80 caracteres")
+    @Size(min = 3, max = 80, message = "Nome precisa ter entre 3 e 80 caracteres")
     @NotBlank(message = "Campo requerido")
     private String name;
     @Size(min = 10, message = "Descricao precisa ter no minimo 10 caracteres")
